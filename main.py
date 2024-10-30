@@ -1,48 +1,44 @@
-# Copyright (c) 2020 brainlife.io
-#
-# This file is a template for a python-based brainlife.io App
-# brainlife stages this git repo, writes `config.json` and execute this script.
-# this script reads the `config.json` and execute pynets container through singularity
-#
-# you can run this script(main) without any parameter to test how this App will run outside brainlife
-# you will need to copy config.json.brainlife-sample to config.json before running `main` as `main`
-# will read all parameters from config.json
-#
-# Author: Franco Pestilli
-# The University of Texas at Austin
+#!/usr/bin/env python
 
-# set up environment
 import json
+import os
 import nibabel as nib
-import dipy
-
-from dipy.align.reslice import reslice
-from dipy.data import get_fnames
+from nibabel.processing import resample_from_to
 
 # load inputs from config.json
+print("[INFO] Loading config.json...")
 with open('config.json') as config_json:
 	config = json.load(config_json)
 
-# Load into variables predefined code inputs
-data_file = str(config['t1'])
- 
-# set the output resolution
-out_res = [ int(v) for v in config['outres'].split(" ")]
+print("[INFO] Extracting parameters...")
+w1 = config["w1"] # T1
+w2 = config["w2"] # QSM
+t1_path = config["t1"]
+qsm_path = config["qsm"]
 
-# we load the input T1w that we would like to resample
-img = nib.load(data_file)
+# Load T1 and QSM NIfTI files
+print("[INFO] Loading NIfTI images...")
+t1_img = nib.load(t1_path)
+qsm_img = nib.load(qsm_path)
 
-# we get the data from the nifti file
-input_data   = img.get_data()
-input_affine = img.affine
-input_zooms  = img.header.get_zooms()[:3]
+# Check if dimensions match
+print("[INFO] Checking dimensions...")
+if t1_img.shape != qsm_img.shape:
+    print("[WARNING] Dimensions do not match! Resampling QSM image to match T1...")
+    qsm_img = resample_from_to(qsm_img, t1_img)
 
-# resample the data
-out_data, out_affine = reslice(input_data, input_affine, input_zooms, out_res)
+# Generate hybrid image
+print("[INFO] Generating hybrid image...")
+t1_data = t1_img.get_fdata()
+qsm_data = qsm_img.get_fdata()
+hc_data = w1 * t1_data + w2 * qsm_data
 
-# create the new NIFTI file for the output
-out_img = nib.Nifti1Image(out_data, out_affine)
+# Save the hybrid contrast as a new NIfTI file
+print("[INFO] Saving output...")
+hc_img = nib.Nifti1Image(hc_data, affine=t1_img.affine)
+out_dir = os.path.abspath("hybrid")
+os.makedirs(out_dir, exist_ok=True)
+nib.save(hc_img, os.path.join(out_dir, "t1.nii.gz"))
 
-# save the output file (with the new resolution) to disk
-nib.save(out_img, 'out_dir/t1.nii.gz')
+print("[INFO] Complete")
 

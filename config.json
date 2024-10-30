@@ -1,0 +1,6 @@
+{
+    "t1": "/home/ashley/repos/qsmci/datasets/challenges/bids/sub-1/anat/sub-1_T1w.nii",
+    "qsm": "/home/ashley/repos/qsmci/datasets/challenges/bids/derivatives/qsmxt-2024-10-28-144325/sub-1/anat/sub-1_run-1_Chimap.nii",
+    "w1": 1,
+    "w2": -10
+}
