@@ -1,5 +1,48 @@
 # Hybrid QSM-weighted T1 Contrast Generator
 
+<!-- brainlife-app:begin (generated from the App manifest; edit the manifest, not this block) -->
+
+> **Generates a hybrid contrast image (HC = w1 x T1w + w2 x QSM) from a T1-weighted image and a QSM map with nibabel, improving subcortical gray matter contrast.**
+
+Loads the T1w and QSM images, resamples the QSM to the T1 grid when shapes differ, and writes the weighted sum as a new T1w-type image. Use it to improve subcortical gray matter contrast before segmentation (e.g. FSL FIRST). The QSM map should be co-registered to the T1.
+
+| | |
+|---|---|
+| 📥 **Inputs** | `neuro/anat/t1w` · `neuro/qsm` |
+| 📤 **Outputs** | `neuro/anat/t1w` |
+| 🐳 **Container** | `python:3.9-bookworm` |
+| ⚙️ **Resources** | 1 GB memory · 0.25 h walltime |
+| 🔗 **Run it** | [doi.org/10.25663/brainlife.app.836](https://doi.org/10.25663/brainlife.app.836) |
+
+#### 📥 Inputs
+
+| Input | Datatype | Required | Description |
+|---|---|---|---|
+| `t1` | `neuro/anat/t1w` | yes | T1-weighted image; defines the output grid. |
+| `qsm` | `neuro/qsm` | yes | Quantitative susceptibility map of the same subject. Must be aligned to the T1; it is resampled to the T1 grid if dimensions differ. |
+
+#### 📤 Outputs
+
+| Output | Datatype | Description |
+|---|---|---|
+| `hybrid` | `neuro/anat/t1w` | Hybrid contrast QSM-weighted T1 image. |
+
+<details>
+<summary><b>⚙️ Parameters</b> (2)</summary>
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `w1` | number | `1.5` | Weighting coefficient for the T1 image. |
+| `w2` | number |  | Weighting coefficient for the QSM image. |
+
+</details>
+
+📚 **References used by this App:**
+- Hayashi S, Caron BA, et al. brainlife.io: A decentralized and open source cloud platform to support neuroscience research. arXiv (2023).
+- Feng X, et al. An improved FSL-FIRST pipeline for subcortical gray matter segmentation to study abnormal brain anatomy using quantitative susceptibility mapping (QSM). Magnetic Resonance Imaging (2017).
+
+<!-- brainlife-app:end -->
+
 [![Abcdspec-compliant](https://img.shields.io/badge/ABCD_Spec-v1.1-green.svg)](https://github.com/brain-life/abcd-spec)
 [![Run on Brainlife.io](https://img.shields.io/badge/Brainlife-bl.app.444-blue.svg)](https://doi.org/10.25663/bl.app.444)
 
